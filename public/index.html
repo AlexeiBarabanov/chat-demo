@@ -128,7 +128,6 @@
 		var username = document.getElementById('username');
 		var message = document.getElementById('message');
 		
-		var socket = io.connect('http://uselesss.site:8080');
 		var socket = io.connect('location.origin + location.pathname');
 
 		socket.on('chathistory', parseData);
