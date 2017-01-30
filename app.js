@@ -7,7 +7,7 @@ var port = 8080;
 
 var messages = {};
 
-//app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
   console.log('index requested ', req.url);

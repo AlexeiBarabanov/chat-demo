@@ -3,105 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>Chat demo</title>
-	<style>
-		html {
-  			position: relative;
-  			min-height: 100%;
-		}
-		body {
-			font-family: 'Open Sans', sans-serif;
-			color: black;
-			font-size: large;
-			margin: 0 auto 60px;
-			padding: 0;
-			margin-bottom: 150px;
-			/*background: linear-gradient(-45deg, #183850 0, #183850 25%, #192C46 50%, #22254C 75%, #22254C 100%) no-repeat;*/
-  			/*background-repeat: no-repeat;*/
-  			/*background-attachment: fixed;*/
-		}
-		* {
-			box-sizing: border-box;
-		}
-		#header {
-			color: #183850;
-			text-align: center;
-		}
-		h1 {
-			font-size: 2em;
-			text-transform: uppercase;
-		}
-		h6 {
-			font-weight: normal;
-			margin: 0;
-		}
-		.container {
-			margin: 0 auto;
-			max-width: 648px;
-			padding: 10px;
-		}
-		#chathistory {
-			line-height: 1.5em;
-			overflow: hidden;
-			word-wrap: break-word;
-		}
-		.username {
-			font-weight: bold;
-		}
-		.username:before {
-			content: ' ';
-		}
-		.time {
-			font-size: .9em;
-		}
-		#messageform {
-			border-bottom: 30px solid white;
-			position: fixed;
-			bottom: 0;
-			padding: 0;
-			width: 100%;
-		}
-		#messageform .container { 
-			background: #d7d7d7;
-		}
-		input, button { 
-			font-family: inherit;
-		    font-size: 1em;
-		    border: none;
-		    border-bottom: solid #5c5c5c 3px;
-		    border-radius: 2px;
-		    outline: none;
-			padding: 10px;
-		    display: inline-block;
-		}
-		input#username, button#sendmessage {
-			/*vertical-align: top;*/
-			width: 40%;
-		}
-		input#message {
-			width: 100%;
-		    margin-bottom: 10px;
-		}
-		button#sendmessage {
-			color: white;
-			background: #716666;
-			cursor: pointer;
-    		float: right;
-		}
-		button#sendmessage:hover {
-			background: #968989;
-		}
-		button#sendmessage:active {
- 			margin-top: 3px;
- 			border-bottom: none;
-		}
-		ul { padding: 0;}
-		li {
-			list-style-type: none;
-		}
-		li:before {
-    		/*content: "\25ba\00a0";*/
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="style.css"></style>
 </head>
 <body>
 	<section id="header"><h1>Chat demo</h1><h6>by Барабанов А.</h6></section>
@@ -128,7 +30,7 @@
 		var username = document.getElementById('username');
 		var message = document.getElementById('message');
 		
-		var socket = io.connect('location.origin + location.pathname');
+		var socket = io.connect(location.origin + location.pathname);
 
 		socket.on('chathistory', parseData);
 		socket.on('broadcast', parseData);
@@ -140,7 +42,7 @@
 						timestamp, 
 						data[timestamp].username, 
 						data[timestamp].message)
-				).scrollIntoView();
+				).scrollIntoView({ behavior: 'smooth' });
 			}
 			message.value = '';
 		}
