@@ -3,6 +3,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var path = require('path');
+var xssFilter = require('xss-filters');
 var port = 8080;
 
 var messages = {};
@@ -25,8 +26,8 @@ io.on('connection', function(socket) {
   socket.on('message', function (data) {
     timestamp = Date.now();
     messages[timestamp] = {
-      username : data.username,
-      message : data.message
+      username : xssFilter.inHTMLData(data.username),
+      message : xssFilter.inHTMLData(data.message)
     };
 
     console.log('received message from client. broadcasting..');
