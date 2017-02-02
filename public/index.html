@@ -36,17 +36,23 @@
 		socket.on('broadcast', parseData);
 
 		function parseData(data) {
-			for(timestamp in data) {
+			
+			if(data.length > 1) {
+				while (chatHistory.firstChild) {
+    				chatHistory.removeChild(chatHistory.firstChild);
+				}
+			}
+
+			for(var i = 0; i < data.length; i++) {
 				chatHistory.appendChild(
 					createMessageElement(
-						timestamp, 
-						data[timestamp].username, 
-						data[timestamp].message)
+						data[i].timestamp, 
+						data[i].username, 
+						data[i].message)
 				).scrollIntoView({ behavior: 'smooth' });
 			}
 			message.value = '';
 		}
-
 
 		function sendMessage() {
 			if(message.value == '' || username.value == '') {

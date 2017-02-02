@@ -1,51 +1,66 @@
 var express = require('express');
 var app = express();
+var path = require('path');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var path = require('path');
 var xssFilter = require('xss-filters');
 var port = 8080;
 
-var messages = {};
+var mongo = require('./models/mongo');
 
-app.use(express.static(__dirname + '/public'));
+mongo.connect(function(err, db) {
+  
+  var messages = db.collection('messages');  
 
-app.get('/', function (req, res) {
-  console.log('index requested ', req.url);
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-})
+  app.use(express.static(__dirname + '/public'));
 
-io.on('connection', function(socket) {
-  console.log('user connected via websocket');
-  socket.emit('chathistory', messages);
-
-  socket.on('disconnect', function() {
-    console.log('user disconnected');
+  app.get('/', function (req, res) {
+    console.log('index requested ', req.url);
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
 
-  socket.on('message', function (data) {
-    timestamp = Date.now();
-    messages[timestamp] = {
-      username : xssFilter.inHTMLData(data.username),
-      message : xssFilter.inHTMLData(data.message)
-    };
+  io.on('connection', function(socket) {
+    console.log('user connected via websocket');
 
-    console.log('received message from client. broadcasting..');
-    io.emit('broadcast', {[timestamp]: messages[timestamp]});
-  //console.log(' ', messages);
+    messages.find().toArray(function(err, data) {
+      for(i = 0; i < data.length; i++) {
+        console.log(data[i]);
+      }
+      socket.emit('chathistory', data);
+    });
+
+
+    socket.on('disconnect', function() {
+      console.log('user disconnected');
+    });
+
+    socket.on('message', function (data) {
+      timestamp = Date.now();
+      var message = {
+        timestamp : timestamp,
+        username : xssFilter.inHTMLData(data.username),
+        message : xssFilter.inHTMLData(data.message)
+      };
+
+      console.log('received message from client. broadcasting..');
+      io.emit('broadcast', [message]);
+
+      messages.save(message);
+    });
   });
+
+  app.use(function (req, res, next) {
+    console.error('404: requsted url ' + req.url);
+    res.status(400).sendFile(path.join(__dirname, 'public', '404.html'));
+  });
+
+  app.use(function(err, req, res, next) {
+    console.error(err.stack);
+    res.status(500);
+  });
+
+  server.listen(port, function () {
+    console.log('app listening port 8080');
+  });
+
 });
-
-app.use(function (req, res, next) {
-  console.error('404: requsted url ' + req.url);
-  res.status(400).sendFile(path.join(__dirname, 'public', '404.html'));
-})
-
-app.use(function(err, req, res, next) {
-  console.error(err.stack);
-  res.status(500);
-})
-
-server.listen(port, function () {
-  console.log('app listening port 8080');
-})
